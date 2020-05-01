@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\include;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\include;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="Include\Collision.cpp" />
     <ClCompile Include="Include\VertexPool.cpp" />
+    <ClCompile Include="Sources\SAT.cpp" />
     <ClCompile Include="Sources\GJK.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
@@ -182,6 +183,7 @@
     <ClInclude Include="Include\Logic.hpp" />
     <ClInclude Include="Include\PolygonGen.hpp" />
     <ClInclude Include="Include\VertexPool.hpp" />
+    <ClInclude Include="Include\SAT.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

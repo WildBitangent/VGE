@@ -391,3 +391,5 @@ FodyWeavers.xsd
 *.exe
 *.out
 *.app
+
+Libraries
