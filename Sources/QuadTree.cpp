@@ -99,13 +99,13 @@ void QuadTreeDetector::QuadTreeNode::split()
 
     auto newValues = std::vector<QuadTreeObject*>();
 
-    for (auto& object : mQuadObjects)
+    for (size_t i = 0; i < mQuadObjects.size(); i++)
     {
-        auto i = getQuadrant(*object);
-        if (i < 4)
-            mSubTrees[i]->mQuadObjects.push_back(object);
+        auto j = getQuadrant(*mQuadObjects[i]);
+        if (j < 4)
+            mSubTrees[j]->mQuadObjects.push_back(mQuadObjects[i]);
         else
-            newValues.push_back(object);
+            newValues.push_back(mQuadObjects[i]);
     }
 
     mQuadObjects = std::move(newValues);
@@ -139,24 +139,24 @@ size_t QuadTreeDetector::QuadTreeNode::getQuadrant(QuadTreeObject& object)
 
 void QuadTreeDetector::QuadTreeNode::findAllCollidingPairs(Pairs& pairs)
 {
-    #pragma omp parallel for shared(pairs)
     for (size_t i = 0; i < mQuadObjects.size(); i++)
     {
         for (size_t j = 0; j < i; j++)
         {
             if (mQuadObjects[i]->intersects(*mQuadObjects[j]))
             {
-                #pragma omp critical
+                #pragma omp critical (pairs)
                 pairs.emplace_back(mQuadObjects[i]->objectID, mQuadObjects[j]->objectID);
             }
         }
     }
     if (!isLeaf())
     {
-        for (auto& subTree : mSubTrees)
+        #pragma omp parallel for
+        for (size_t i = 0; i < mSubTrees.size(); i++)
         {
-            for (auto quadObject : mQuadObjects)
-                subTree->findAllCollidingDescendants(*quadObject, pairs);
+            for (size_t j = 0; j < mQuadObjects.size(); j++)
+                mSubTrees[i]->findAllCollidingDescendants(*mQuadObjects[j], pairs);
         }
         for (auto& subTree : mSubTrees)
             subTree->findAllCollidingPairs(pairs);
@@ -165,13 +165,18 @@ void QuadTreeDetector::QuadTreeNode::findAllCollidingPairs(Pairs& pairs)
 
 void QuadTreeDetector::QuadTreeNode::findAllCollidingDescendants(QuadTreeObject& object, Pairs& pairs)
 {
-    for (auto quadObject : mQuadObjects)
-        if (object.intersects(*quadObject))
-            pairs.emplace_back(object.objectID, quadObject->objectID);
+    for (size_t i = 0; i < mQuadObjects.size(); i++)
+    {
+        if (object.intersects(*mQuadObjects[i]))
+        {
+            #pragma omp critical (pairs)
+            pairs.emplace_back(object.objectID, mQuadObjects[i]->objectID);
+        }
+    }
 
     if (!isLeaf())
-        for (auto& subTree : mSubTrees)
-            subTree->findAllCollidingDescendants(object, pairs);
+        for (size_t i = 0; i < mSubTrees.size(); i++)
+            mSubTrees[i]->findAllCollidingDescendants(object, pairs);
 }
 
 bool QuadTreeDetector::QuadTreeNode::intersects(QuadTreeObject& object)
