@@ -16,7 +16,7 @@ public:
 	void addCollider(Object object)
 	{
 		mObjects.emplace_back(object);
-		//onColliderAddition();
+		onColliderAddition();
 	}
 
 	std::vector<Object>& getObjects() { return mObjects; }
@@ -25,7 +25,7 @@ public:
 	virtual Pairs generatePairs() = 0;
 
 protected:
-	//virtual void onColliderAddition() = 0; // TODO maybe not needed
+	virtual void onColliderAddition() = 0;
 
 protected:
 	std::vector<Object> mObjects;
@@ -40,7 +40,7 @@ public:
 	virtual Pairs generatePairs() override;
 
 private:
-	//virtual void onColliderAddition() override;
+	virtual void onColliderAddition() override;
 	void makeBins();
 
 private:

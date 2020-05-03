@@ -33,7 +33,10 @@
     <ClCompile Include="Include\Collision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SAT.cpp">
+    <ClCompile Include="Sources\SAT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,7 +59,10 @@
     <ClInclude Include="Include\Constants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SAT.hpp">
+    <ClInclude Include="Include\SAT.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\QuadTree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

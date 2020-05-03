@@ -8,23 +8,23 @@ SAT::SAT(const Hull& a, const Hull& b)
 
 SAT::operator bool()
 {
-    auto normalsHullA = getNormals(mHullA);
-    auto normalsHullB = getNormals(mHullB);
     bool separated = false;
-
-    for (size_t i = 0; i < normalsHullA.size() && !separated; i++)
+    
+    auto hullNormals = getNormals(mHullA);
+    for (size_t i = 0; i < hullNormals.size() && !separated; i++)
     {
-        auto result1 = getMinMax(mHullA, normalsHullA[i]);
-        auto result2 = getMinMax(mHullB, normalsHullA[i]);
+        auto result1 = getMinMax(mHullA, hullNormals[i]);
+        auto result2 = getMinMax(mHullB, hullNormals[i]);
         separated = result1.max < result2.min || result2.max < result1.min;
     }
 
     if (!separated)
     {
-        for (size_t i = 0; i < normalsHullB.size() && !separated; i++)
+        hullNormals = getNormals(mHullB);
+        for (size_t i = 0; i < hullNormals.size() && !separated; i++)
         {
-            auto result1 = getMinMax(mHullA, normalsHullB[i]);
-            auto result2 = getMinMax(mHullB, normalsHullB[i]);
+            auto result1 = getMinMax(mHullA, hullNormals[i]);
+            auto result2 = getMinMax(mHullB, hullNormals[i]);
             separated = result1.max < result2.min || result2.max < result1.min;
         }
     }
@@ -47,19 +47,16 @@ std::vector<glm::vec2> SAT::getNormals(const Hull& hull)
 
 SAT::MinMaxResult SAT::getMinMax(const Hull& hull, const glm::vec2& axis)
 {
-    float min = std::numeric_limits<float>::max();
-    float max = std::numeric_limits<float>::lowest();
+    auto min = std::numeric_limits<float>::max();
+    auto max = std::numeric_limits<float>::lowest();
 
     for (size_t i = 0; i < hull.size(); i++)
     {
         auto currentProjection = glm::dot(hull[i], axis);
-
         //select the maximum projection on axis to corresponding box corners
-        if (currentProjection < min)
-            min = currentProjection;
+        min = glm::min(min, currentProjection);
         //select the minimum projection on axis to corresponding box corners
-        if (currentProjection > max)
-            max = currentProjection;
+        max = glm::max(max, currentProjection);
     }
 
     return { min, max };
