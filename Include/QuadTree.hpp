@@ -2,13 +2,17 @@
 
 #include "Collision.hpp"
 #include <set>
-#include <vector>
+#include <array>
 
-class QuadTree
+class QuadTreeDetector : public BroadPhaseDetector
 {
 public:
-    QuadTree(glm::vec2 topLeft, glm::vec2 botRight);
+    QuadTreeDetector(size_t maxNodeObjects, size_t maxDepth);
 
+    virtual Pairs generatePairs() override;
+    virtual void onColliderAddition() override;
+
+private:
     struct QuadTreeObject
     {
         glm::vec2 minBound;
@@ -17,38 +21,30 @@ public:
         Object object;
         QuadTreeObject(Object object, CollisionID objectID);
         void update();
+        bool intersects(QuadTreeObject& object);
     };
 
-    void reset();
-    bool inBounds(QuadTreeObject& object);
-    void insert(QuadTreeObject& object);
-    void getCollidingObjects(QuadTreeObject& object, std::set<CollisionID>& collisions);
+    struct QuadTreeNode
+    {
+        QuadTreeNode(size_t depth, glm::vec2 topLeft, glm::vec2 botRight);
+        bool inBounds(QuadTreeObject& object);
+        void insert(QuadTreeObject& object);
+        void split();
+        bool isLeaf();
+        size_t getQuadrant(QuadTreeObject& object);
+        void findAllCollidingPairs(Pairs& pairs);
+        void findAllCollidingDescendants(QuadTreeObject& object, Pairs& pairs);
+        bool intersects(QuadTreeObject& object);
 
-private:
-    glm::vec2 mTopLeft;
-    glm::vec2 mBotRight;
-    glm::vec2 mCenter;
+        size_t mDepth;
+        glm::vec2 mTopLeft;
+        glm::vec2 mBotRight;
+        glm::vec2 mCenter;
+        std::array<std::unique_ptr<QuadTreeNode>, 4> mSubTrees;
+        std::vector<QuadTreeObject*> mQuadObjects;
+    };
 
-    std::vector<CollisionID> mQuadObjects;
-
-    std::unique_ptr<QuadTree> mTopLeftTree;
-    std::unique_ptr<QuadTree> mTopRightTree;
-    std::unique_ptr<QuadTree> mBotLeftTree;
-    std::unique_ptr<QuadTree> mBotRightTree;
-};
-
-class QuadTreeDetector : public BroadPhaseDetector
-{
-public:
-    QuadTreeDetector(float minLeafSize);
-
-    virtual Pairs generatePairs() override;
-    virtual void onColliderAddition() override;
-
-private:
-    QuadTree mQuadTree;
-    glm::vec2 mTopLeft;
-    glm::vec2 mBotRight;
-    std::vector<QuadTree::QuadTreeObject> mTreeObjects;
+    std::unique_ptr<QuadTreeNode> mRoot;
+    std::vector<QuadTreeObject> mTreeObjects;
 };
 

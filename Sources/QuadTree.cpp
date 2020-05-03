@@ -3,64 +3,43 @@
 
 namespace
 {
-    float approxMinLeafSize;
+    size_t mMaxNodeObjects;
+    size_t mMaxDepth;
 }
 
-QuadTreeDetector::QuadTreeDetector(float minLeafSize) :
-    mQuadTree(glm::vec2(-AREA_SIZE.x * 0.5f), glm::vec2(AREA_SIZE.x * 0.5f)),
-    mTopLeft(-AREA_SIZE.x * 0.5f),
-    mBotRight(AREA_SIZE.x * 0.5f)
+QuadTreeDetector::QuadTreeDetector(size_t maxNodeObjects, size_t maxDepth)
 {
-    approxMinLeafSize = minLeafSize;
+    mMaxDepth = maxDepth;
+    mMaxNodeObjects = maxNodeObjects;
 }
 
 Pairs QuadTreeDetector::generatePairs()
 {
-    mQuadTree.reset();
+    mRoot = std::make_unique<QuadTreeNode>(0, -AREA_SIZE, AREA_SIZE);
 
     for (CollisionID i = 0; i < mObjects.size(); i++)
     {
         mTreeObjects[i].update();
-        if (mQuadTree.inBounds(mTreeObjects[i]))
-            mQuadTree.insert(mTreeObjects[i]);
+        mRoot->insert(mTreeObjects[i]);
     }
 
     Pairs pairs;
-    
-    #pragma omp parallel for shared(pairs) // Nothing 124
-    for (CollisionID i = 0; i < mTreeObjects.size() - 1; i++)
-    {
-        auto collidingObjects = std::set<CollisionID>();
-        if (mQuadTree.inBounds(mTreeObjects[i]))
-        {
-            mQuadTree.getCollidingObjects(mTreeObjects[i], collidingObjects);
-            for (auto& collidingObject : collidingObjects)
-            {
-                #pragma omp critical  // 108
-                pairs.emplace_back(i, collidingObject);
-            }
-        }
-    }
-    
+    mRoot->findAllCollidingPairs(pairs);
     return pairs;
-}
-
-bool QuadTree::inBounds(QuadTreeObject& object)
-{
-    return object.minBound.x >= mTopLeft.x && object.minBound.y >= mTopLeft.y && object.maxBound.x <= mBotRight.x && object.maxBound.y <= mBotRight.y;
 }
 
 void QuadTreeDetector::onColliderAddition()
 {
-    mTreeObjects.push_back(QuadTree::QuadTreeObject(mObjects.back(), mObjects.size() - 1));
+    mTreeObjects.push_back(QuadTreeObject(mObjects.back(), mObjects.size() - 1));
 }
 
-QuadTree::QuadTreeObject::QuadTreeObject(Object object, CollisionID objectID) :
+QuadTreeDetector::QuadTreeObject::QuadTreeObject(Object object, CollisionID objectID) :
     objectID(objectID),
     object(object)
-{}
+{
+}
 
-void QuadTree::QuadTreeObject::update()
+void QuadTreeDetector::QuadTreeObject::update()
 {
     minBound = glm::vec2(std::numeric_limits<float>::max());
     maxBound = glm::vec2(std::numeric_limits<float>::lowest());
@@ -73,95 +52,134 @@ void QuadTree::QuadTreeObject::update()
     }
 }
 
-QuadTree::QuadTree(glm::vec2 topLeft, glm::vec2 botRight) :
+QuadTreeDetector::QuadTreeNode::QuadTreeNode(size_t depth, glm::vec2 topLeft, glm::vec2 botRight) :
+    mDepth(depth),
     mTopLeft(topLeft),
     mBotRight(botRight),
     mCenter((topLeft + botRight) * 0.5f)
 {
 }
 
-void QuadTree::reset()
+bool QuadTreeDetector::QuadTreeNode::inBounds(QuadTreeObject& object)
 {
-    mTopLeftTree.reset(nullptr);
-    mBotLeftTree.reset(nullptr);
-    mTopRightTree.reset(nullptr);
-    mBotRightTree.reset(nullptr);
+    return object.minBound.x >= mTopLeft.x && object.minBound.y >= mTopLeft.y && object.maxBound.x <= mBotRight.x && object.maxBound.y <= mBotRight.y;
 }
 
-void QuadTree::insert(QuadTreeObject& object)
+void QuadTreeDetector::QuadTreeNode::insert(QuadTreeObject& object)
 {
-    if (mBotRight.x - mTopLeft.x <= approxMinLeafSize && mBotRight.y - mTopLeft.y <= approxMinLeafSize)
-    {
-        mQuadObjects.push_back(object.objectID);
+    if (!inBounds(object))
         return;
-    }
 
-    bool atTop = object.minBound.y <= mCenter.y;
-    bool atBot = object.maxBound.y >= mCenter.y;
-    bool atLeft = object.minBound.x <= mCenter.x;
-    bool atRight = object.maxBound.x >= mCenter.x;
-    bool inTopLeft = atTop && atLeft;
-    bool inBotLeft = atBot && atLeft;
-    bool inTopRight = atTop && atRight;
-    bool inBotRight = atBot && atRight;
-
-    if (inTopLeft)
+    if (isLeaf())
     {
-        if (!mTopLeftTree)
-            mTopLeftTree.reset(new QuadTree(mTopLeft, mCenter));
-        mTopLeftTree->insert(object);
+        if (mDepth >= mMaxDepth || mQuadObjects.size() < mMaxNodeObjects)
+            mQuadObjects.push_back(&object);
+        else
+        {
+            split();
+            insert(object);
+        }
     }
-
-    if (inBotLeft)
+    else
     {
-        if (!mBotLeftTree)
-            mBotLeftTree.reset(new QuadTree(glm::vec2(mTopLeft.x, mCenter.y), glm::vec2(mCenter.x, mBotRight.y)));
-        mBotLeftTree->insert(object);
-    }
-
-    if (inTopRight)
-    {
-        if (!mTopRightTree)
-            mTopRightTree.reset(new QuadTree(glm::vec2(mCenter.x, mTopLeft.y), glm::vec2(mBotRight.x, mCenter.y)));
-        mTopRightTree->insert(object);
-    }
-
-    if (inBotRight)
-    {
-        if (!mBotRightTree)
-            mBotRightTree.reset(new QuadTree(mCenter, mBotRight));
-        mBotRightTree->insert(object);
+        auto i = getQuadrant(object);
+        if (i < 4)
+            mSubTrees[i]->insert(object);
+        else
+            mQuadObjects.push_back(&object);
     }
 }
 
-void QuadTree::getCollidingObjects(QuadTreeObject& object, std::set<CollisionID>& collisions)
+void QuadTreeDetector::QuadTreeNode::split()
 {
-    if (mQuadObjects.size())
+    mSubTrees[0] = std::make_unique<QuadTreeNode>(mDepth + 1, mTopLeft, mCenter);
+    mSubTrees[1] = std::make_unique<QuadTreeNode>(mDepth + 1, glm::vec2(mCenter.x, mTopLeft.y), glm::vec2(mBotRight.x, mCenter.y));
+    mSubTrees[2] = std::make_unique<QuadTreeNode>(mDepth + 1, glm::vec2(mTopLeft.x, mCenter.y), glm::vec2(mCenter.x, mBotRight.y));
+    mSubTrees[3] = std::make_unique<QuadTreeNode>(mDepth + 1, mCenter, mBotRight);
+
+    auto newValues = std::vector<QuadTreeObject*>();
+
+    for (auto& object : mQuadObjects)
     {
-        for (auto quadObject : mQuadObjects)
-            if (quadObject > object.objectID)
-                collisions.emplace(quadObject);
-        return;
+        auto i = getQuadrant(*object);
+        if (i < 4)
+            mSubTrees[i]->mQuadObjects.push_back(object);
+        else
+            newValues.push_back(object);
     }
 
-    bool atTop = object.minBound.y <= mCenter.y;
-    bool atBot = object.maxBound.y >= mCenter.y;
-    bool atLeft = object.minBound.x <= mCenter.x;
-    bool atRight = object.maxBound.x >= mCenter.x;
-    bool inTopLeft = atTop && atLeft;
-    bool inBotLeft = atBot && atLeft;
-    bool inTopRight = atTop && atRight;
-    bool inBotRight = atBot && atRight;
+    mQuadObjects = std::move(newValues);
+}
 
-    if (inTopLeft && mTopLeftTree)
-        mTopLeftTree->getCollidingObjects(object, collisions);
+bool QuadTreeDetector::QuadTreeNode::isLeaf()
+{
+    return !static_cast<bool>(mSubTrees[0]);
+}
 
-    if (inBotLeft && mBotLeftTree)
-       mBotLeftTree->getCollidingObjects(object, collisions);
+size_t QuadTreeDetector::QuadTreeNode::getQuadrant(QuadTreeObject& object)
+{
+    if (object.maxBound.x < mCenter.x)
+    {
+        if (object.maxBound.y < mCenter.y)
+            return 0; // entirely top left
+        else if (object.minBound.y >= mCenter.y)
+            return 2; // entirely bot left
+    }
 
-    if (inTopRight && mTopRightTree)
-        mTopRightTree->getCollidingObjects(object, collisions);
+    else if (object.minBound.x >= mCenter.x)
+    {
+        if (object.maxBound.y < mCenter.y)
+            return 1; // entirely top right
+        else if (object.minBound.y >= mCenter.y)
+            return 3; // entirely bot right
+    }
+    
+    return 4; // not contained entirely in any quadrant
+}
 
-    if (inBotRight && mBotRightTree)
-        mBotRightTree->getCollidingObjects(object, collisions);
+void QuadTreeDetector::QuadTreeNode::findAllCollidingPairs(Pairs& pairs)
+{
+    #pragma omp parallel for shared(pairs)
+    for (size_t i = 0; i < mQuadObjects.size(); i++)
+    {
+        for (size_t j = 0; j < i; j++)
+        {
+            if (mQuadObjects[i]->intersects(*mQuadObjects[j]))
+            {
+                #pragma omp critical
+                pairs.emplace_back(mQuadObjects[i]->objectID, mQuadObjects[j]->objectID);
+            }
+        }
+    }
+    if (!isLeaf())
+    {
+        for (auto& subTree : mSubTrees)
+        {
+            for (auto quadObject : mQuadObjects)
+                subTree->findAllCollidingDescendants(*quadObject, pairs);
+        }
+        for (auto& subTree : mSubTrees)
+            subTree->findAllCollidingPairs(pairs);
+    }
+}
+
+void QuadTreeDetector::QuadTreeNode::findAllCollidingDescendants(QuadTreeObject& object, Pairs& pairs)
+{
+    for (auto quadObject : mQuadObjects)
+        if (object.intersects(*quadObject))
+            pairs.emplace_back(object.objectID, quadObject->objectID);
+
+    if (!isLeaf())
+        for (auto& subTree : mSubTrees)
+            subTree->findAllCollidingDescendants(object, pairs);
+}
+
+bool QuadTreeDetector::QuadTreeNode::intersects(QuadTreeObject& object)
+{
+    return object.minBound.x < mBotRight.x && object.maxBound.x > mTopLeft.x && object.minBound.y < mBotRight.y && object.maxBound.y > mTopLeft.y;
+}
+
+bool QuadTreeDetector::QuadTreeObject::intersects(QuadTreeObject& object)
+{
+    return minBound.x < object.maxBound.x && maxBound.x > object.minBound.x && minBound.y < object.maxBound.y && maxBound.y > object.minBound.y;
 }
