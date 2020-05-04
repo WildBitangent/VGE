@@ -48,6 +48,9 @@ void SpatialGrid::makeBins()
 	}
 }
 
+void SpatialGrid::onColliderAddition()
+{}
+
 void CollisionDetector::addCollider(Object object)
 {
 	mBroadphase->addCollider(object);

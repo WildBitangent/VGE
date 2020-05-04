@@ -33,13 +33,16 @@
     <ClCompile Include="Sources\PolygonGen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Collision.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\VertexPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\SAT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\QuadTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sources\PerfBench.cpp">
@@ -47,6 +50,12 @@
     </ClCompile>
     <ClCompile Include="Sources\AlgDebugger.cpp">
       <Filter>Levels\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\VertexPool.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +88,12 @@
     </ClInclude>
     <ClInclude Include="Include\AlgDebugger.hpp">
       <Filter>Levels\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SAT.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\QuadTree.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

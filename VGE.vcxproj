@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\timot\Downloads\SFML\SFML-2.5.1\lib;C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\timot\Downloads\SFML\SFML-2.5.1\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;D:\Skola\VUT FIT\ITAI\2. semester\VGE\projekt\VGE\Libraries\SFML-2.5.1\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -159,33 +159,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sources\Collision.cpp" />
-    <ClCompile Include="Sources\GJK.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Sources\VertexPool.cpp" />
+    <ClCompile Include="Sources\QuadTree.cpp" />
+    <ClCompile Include="Sources\SAT.cpp" />
+    <ClCompile Include="Sources\GJK.cpp" />
     <ClCompile Include="Sources\PerfBench.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\PolygonGen.cpp" />
     <ClCompile Include="Sources\Shapes.cpp" />
-    <ClCompile Include="Sources\VertexPool.cpp" />
     <ClCompile Include="Sources\AlgDebugger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Collision.hpp" />
     <ClInclude Include="Include\Constants.hpp" />
-    <ClInclude Include="Include\GJK.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Include\GJK.hpp" />
     <ClInclude Include="Include\Level.hpp" />
     <ClInclude Include="Include\PerfBench.hpp" />
     <ClInclude Include="Include\PolygonGen.hpp" />
     <ClInclude Include="Include\Shapes.hpp" />
+    <ClInclude Include="Include\QuadTree.hpp" />
     <ClInclude Include="Include\VertexPool.hpp" />
+    <ClInclude Include="Include\SAT.hpp" />
     <ClInclude Include="Include\Visualization.hpp" />
     <ClInclude Include="Include\AlgDebugger.hpp" />
   </ItemGroup>

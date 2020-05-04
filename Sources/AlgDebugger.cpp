@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 
 #include "GJK.hpp"
+#include "SAT.hpp"
 
 using namespace glm;
 
@@ -14,8 +15,8 @@ AlgDebugger::AlgDebugger()
 	mPolygons.setMaxVertices(5); // TODO tweak
 	mPolygons.generatePolygons(2);
 
-	mVisualizers.emplace_back(std::make_unique<GJKVisualizer>()); // TODO maybe use hash map with string key?
-	// TODO add SAT visualizer
+	mVisualizers.emplace_back(std::make_unique<GJKVisualizer>()); // TODO maybe use hash map with string key? Or Enum?
+	mVisualizers.emplace_back(std::make_unique<SATVisualizer>());
 
 	mVisualizers[mVisualizerIndex]->simulate(mPolygons[0], mPolygons[1]);
 }
@@ -58,17 +59,17 @@ void AlgDebugger::onEvent(const sf::Event& event)
 
 			case sf::Keyboard::Key::Num1: // GJK Visualizer
 			{
-				mSimulationIndex = 0; 
 				mSimulationIndex = 0;
+				mVisualizerIndex = 0;
 				mVisualizers[mVisualizerIndex]->simulate(mPolygons[0], mPolygons[1]);
 				break;
 			}
 
-			case sf::Keyboard::Key::Num2: // TODO SAT Visualizer
+			case sf::Keyboard::Key::Num2: // SAT Visualizer
 			{
-				//mVisualizerIndex = 1;
-				//mSimulationIndex = 0;
-				//mVisualizers[mVisualizerIndex]->simulate(mPolygons[0], mPolygons[1]);
+				mSimulationIndex = 0;
+				mVisualizerIndex = 1;
+				mVisualizers[mVisualizerIndex]->simulate(mPolygons[0], mPolygons[1]);
 				break;
 			}
 			case sf::Keyboard::Key::Left:

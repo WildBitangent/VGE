@@ -2,8 +2,8 @@
 #include "Constants.hpp"
 #include <SFML/Window/Keyboard.hpp>
 
-
 #include "GJK.hpp"
+#include "QuadTree.hpp"
 
 using namespace glm;
 
@@ -11,7 +11,7 @@ using namespace glm;
 PerfBench::PerfBench(sf::Window& window)
 	: mWindow(window)
 {
-	size_t defaultPolygonCount = 500;
+	size_t defaultPolygonCount = 1000;
 	mPolygons.generatePolygons(defaultPolygonCount);
 
 	// create shapes
@@ -28,7 +28,8 @@ PerfBench::PerfBench(sf::Window& window)
 		mShapes.emplace_back(shape);
 	}
 
-	mColliDetector.setBroadPhaseDetector(std::make_unique<SpatialGrid>(225));
+	//mColliDetector.setBroadPhaseDetector(std::make_unique<SpatialGrid>(225)); // TODO alg switching
+	mColliDetector.setBroadPhaseDetector(std::make_unique<QuadTreeDetector>(10, 5));
 	for (auto& p : mPolygons.data())
 		mColliDetector.addCollider(p);
 }

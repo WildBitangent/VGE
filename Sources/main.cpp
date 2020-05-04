@@ -57,8 +57,8 @@ int main()
 		timeStart = currentTime;
 
 		auto delta = std::chrono::duration<float, std::milli>(deltaTime).count();
-		if (delta > 100.f / 144.f)
-			delta = 100.f / 144.f;
+		//if (delta > 100.f / 144.f)
+		//	delta = 100.f / 144.f;
 
 		levels[selectedlevel]->update(delta);
 
