@@ -4,10 +4,25 @@
 #include <vector>
 #include <span>
 
-
+using Hull = std::span<glm::vec2>; // TODO eh?
 using Object = std::span<glm::vec2>;
 using CollisionID = size_t;
 using Pairs = std::vector<std::pair<CollisionID, CollisionID>>;
+
+class NarrowPhaseDetector
+{
+public:
+	explicit NarrowPhaseDetector(const Hull& a, const Hull& b) 
+		: mHullA(a)
+		, mHullB(b)
+	{} 
+
+	virtual operator bool() = 0; // this probably killed performance
+
+protected:
+	Hull mHullA;
+	Hull mHullB;
+};
 
 class BroadPhaseDetector
 {

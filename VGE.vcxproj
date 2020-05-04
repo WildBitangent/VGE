@@ -79,7 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;C:\Users\Unitaco\source\repos\CaptainUnitaco\VGE\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Unitaco\Downloads\SFML-2.5.1-sources\SFML-2.5.1\_INSTALL\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;sfml-system-s-d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;libomp.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;winmm.lib;opengl32.lib;sfml-system-s-d.lib;sfml-graphics-s-d.lib;sfml-window-s-d.lib;libomp.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files\LLVM\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -153,22 +153,24 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;opengl32.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;libomp.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;winmm.lib;opengl32.lib;sfml-graphics-s.lib;sfml-window-s.lib;sfml-system-s.lib;libomp.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files\LLVM\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Collision.cpp" />
-    <ClCompile Include="Include\VertexPool.cpp" />
+    <ClCompile Include="Sources\Collision.cpp" />
     <ClCompile Include="Sources\GJK.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Sources\Logic.cpp" />
+    <ClCompile Include="Sources\PerfBench.cpp" />
     <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\PolygonGen.cpp" />
+    <ClCompile Include="Sources\Shapes.cpp" />
+    <ClCompile Include="Sources\VertexPool.cpp" />
+    <ClCompile Include="Sources\AlgDebugger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Collision.hpp" />
@@ -179,9 +181,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Include\Logic.hpp" />
+    <ClInclude Include="Include\Level.hpp" />
+    <ClInclude Include="Include\PerfBench.hpp" />
     <ClInclude Include="Include\PolygonGen.hpp" />
+    <ClInclude Include="Include\Shapes.hpp" />
     <ClInclude Include="Include\VertexPool.hpp" />
+    <ClInclude Include="Include\Visualization.hpp" />
+    <ClInclude Include="Include\AlgDebugger.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

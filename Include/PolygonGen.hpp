@@ -11,28 +11,33 @@ class PolygonGen
 public:
 	using PolyArray = std::vector<std::span<glm::vec2>>;
 public:
-	PolygonGen();
+	PolygonGen(size_t memSize = 1024 * 1024); // ~1M vertices (4MB memory)
 
-	void setPolygonArea(glm::uvec2 areaMin, glm::uvec2 areaMax);
+	void setPolygonArea(glm::vec2 areaMin, glm::vec2 areaMax);
 	void setPolygonSize(float size);
 	void setMaxVertices(size_t size);
 
 	PolyArray& generatePolygons(size_t count);
 	PolyArray& resizePolygons(size_t count);
-	PolyArray& get();
-	std::span<glm::vec2> getDirections();
+	PolyArray& regenerateLastPolygons(size_t count);
+	std::vector<glm::vec2>& getDirections();
+
+	std::span<glm::vec2> operator[](size_t i) const;
+	
+	PolyArray& data();
+	size_t size() const;
 
 private:
 	std::span<glm::vec2> generatePolygon();
 
 private:
 	VertexPool mPool;
-	VertexPool mDirPool;
+	//VertexPool mDirPool;
 	PolyArray mPolygons;
-	std::span<glm::vec2> mDirections;
+	std::vector<glm::vec2> mDirections;
 
-	glm::uvec2 mAreaMin;
-	glm::uvec2 mAreaMax;
+	glm::vec2 mAreaMin;
+	glm::vec2 mAreaMax;
 
 	float mMaxPolygonSize;
 	size_t mMaxVertices;

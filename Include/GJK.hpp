@@ -4,38 +4,23 @@
 #include <vector>
 #include <span>
 
-using Hull = std::span<glm::vec2>;
-using DrawCall = std::vector<sf::Vertex>;
-using DrawStack = std::vector<DrawCall>;
+#include "Visualization.hpp"
+#include "Collision.hpp"
 
-class GJK
+class GJK : public NarrowPhaseDetector
 {
 public:
 	explicit GJK(const Hull& a, const Hull& b);
-	operator bool();
+	virtual operator bool() override;
 
-private:
+protected:
 	glm::vec2 support(const glm::vec2& direction);
 
-private:
-	const Hull& mHullA; // TODO replace with aligned pool AKA vector view
-	const Hull& mHullB;
 };
 
-class GJKVisualizer
+class GJKVisualizer : public Visualization, protected GJK 
 {
 public:
-	DrawStack simulate();
-
-	DrawStack& operator()() { return mDrawStack; }
-	DrawCall& operator[](size_t i) { return mDrawStack[i]; }
-
-private:
-
-
-
-private:
-	DrawStack mDrawStack;
-	const Hull& mHullA;
-	const Hull& mHullB;
+	GJKVisualizer();
+	void simulate(const Hull& a, const Hull& b) override;
 };

@@ -1,4 +1,4 @@
-﻿#include "Logic.hpp"
+﻿#include "PerfBench.hpp"
 #include "Constants.hpp"
 #include <SFML/Window/Keyboard.hpp>
 
@@ -8,16 +8,16 @@
 using namespace glm;
 
 
-Logic::Logic(sf::Window& window)
+PerfBench::PerfBench(sf::Window& window)
 	: mWindow(window)
 {
-	size_t defaultPolygonCount = 700;
+	size_t defaultPolygonCount = 500;
 	mPolygons.generatePolygons(defaultPolygonCount);
 
 	// create shapes
 	for (size_t i = 0; i < defaultPolygonCount; ++i)
 	{
-		const auto& polygon = mPolygons.get()[i];
+		const auto& polygon = mPolygons[i];
 		
 		sf::ConvexShape shape;
 		shape.setPointCount(polygon.size());
@@ -27,14 +27,13 @@ Logic::Logic(sf::Window& window)
 
 		mShapes.emplace_back(shape);
 	}
-	//mShapes.emplace_back(); // Mouse hull
 
 	mColliDetector.setBroadPhaseDetector(std::make_unique<SpatialGrid>(225));
-	for (auto& p : mPolygons.get())
+	for (auto& p : mPolygons.data())
 		mColliDetector.addCollider(p);
 }
 
-void Logic::update(float dt)
+void PerfBench::update(float dt)
 {
 	// handle camera movement
 	vec2 movedir = { 0, 0 };
@@ -49,20 +48,13 @@ void Logic::update(float dt)
 		movedir.y -= 1;
 
 	movedir *= MOVESPEED;
-	//if (movedir.x != 0 && movedir.y != 0)
-	//{
-	//	if (movedir < 0) movedir.x - sqrt(abs(movedir))
-	//}
-		//movedir = (movedir.x < 0) ?  : sqrt(movedir);
 
 	auto delta = movedir * dt;
 	move(delta.x, delta.y);
-	//mCameraPos += delta;
 
 	updatePolygons(dt);
 	mColliDetector.update();
 
-	//sf::Vector2f halfArea = { (MAX_AREA.x - mWindow.getSize().x) / 2, (MAX_AREA.y - mWindow.getSize().y) / 2 };
 	auto position = getPosition();
 	position.x = std::min(std::max(position.x, -AREA_SIZE.x + mWindow.getSize().x), AREA_SIZE.x);
 	position.y = std::min(std::max(position.y, -AREA_SIZE.y + mWindow.getSize().y), AREA_SIZE.y);
@@ -72,7 +64,7 @@ void Logic::update(float dt)
 		mShapes[i].setFillColor(mColliDetector.queryIsColliding(i) ? sf::Color::Cyan : sf::Color::White);
 }
 
-void Logic::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void PerfBench::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	// draw gridlines
 	constexpr int stride = 225;
@@ -102,12 +94,6 @@ void Logic::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		lines.emplace_back(b);
 	}
 
-	//sf::CircleShape circle; 
-	//circle.setFillColor(sf::Color::Red); 
-	//circle.setPosition(getPosition().x + 50, getPosition().y + 50); 
-	//circle.setRadius(100);
-
-
 	target.draw(lines.data(), lines.size(), sf::Lines, states);
 
 	states.transform *= getTransform(); // getTransform() is defined by sf::Transformable
@@ -115,38 +101,18 @@ void Logic::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		target.draw(s, states);
 }
 
-bool Logic::checkCollisions()
+void PerfBench::onEvent(const sf::Event& event)
 {
-	//auto mouse = static_cast<sf::Vector2f>(sf::Mouse::getPosition(mWindow)) - getPosition();
-	//vec2 pos = { mouse.x, mouse.y };
-
-	//std::vector<vec2> mouseHull = {
-	//	pos + vec2(-20, 20),
-	//	pos + vec2(-10, -10),
-	//	pos + vec2(10, -10)
-	//};
-
-	//sf::ConvexShape& mouseShape = mShapes.back();
-	//mouseShape.setPointCount(mouseHull.size());
-
-	//for (size_t i = 0; i < mouseHull.size(); i++)
-	//	mouseShape.setPoint(i, { mouseHull[i].x, mouseHull[i].y });
-
-	//for (auto& e : mPolygons.get())
-	//	if (GJK(std::span(mouseHull.data(), mouseHull.size()), e))
-	//		return true;
-
-	return false; 
 }
 
-void Logic::updatePolygons(float dt)
+void PerfBench::updatePolygons(float dt)
 {
 	//vec2 halfArea = { (MAX_AREA.x - mWindow.getSize().x) / 2, (MAX_AREA.y - mWindow.getSize().y) / 2 };
 	
 	#pragma omp parallel for schedule(static)
-	for (size_t i = 0; i < mPolygons.get().size(); ++i)
+	for (size_t i = 0; i < mPolygons.size(); ++i)
 	{
-		auto& polygon = mPolygons.get()[i];
+		auto polygon = mPolygons[i];
 		auto& direction = mPolygons.getDirections()[i];
 		auto speed = direction * dt;
 		
@@ -156,8 +122,10 @@ void Logic::updatePolygons(float dt)
 		{
 			v += speed;
 
-			if (v.x < -AREA_SIZE.x || v.x > AREA_SIZE.x) pushX = true;
-			if (v.y < -AREA_SIZE.y || v.y > AREA_SIZE.y) pushY = true;
+			if (v.x < -AREA_SIZE.x || v.x > AREA_SIZE.x) 
+				pushX = true;
+			if (v.y < -AREA_SIZE.y || v.y > AREA_SIZE.y) 
+				pushY = true;
 		}
 
 		if (pushX || pushY)

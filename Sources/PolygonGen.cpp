@@ -2,17 +2,19 @@
 
 using namespace glm;
 
-PolygonGen::PolygonGen()
-	: mPool(4 * 1024 * 1024) // 4 MB // TODO SIZE
-	, mDirPool(1 * 1024 * 1024)
+PolygonGen::PolygonGen(size_t memSize)
+	: mPool(memSize) // 4 MB // TODO SIZE
+	//, mDirPool(1 * 1024 * 1024)
 	, mGenerator(mRandomDevice())
 {
 	setPolygonSize(50);
 	setPolygonArea({ 0, 0 }, { 800, 600 });
 	setMaxVertices(15);
+
+	mDirections.reserve(memSize);
 }
 
-void PolygonGen::setPolygonArea(glm::uvec2 areaMin, glm::uvec2 areaMax)
+void PolygonGen::setPolygonArea(glm::vec2 areaMin, glm::vec2 areaMax)
 {
 	mAreaMin = areaMin;
 	mAreaMax = areaMax;
@@ -40,17 +42,22 @@ PolygonGen::PolyArray& PolygonGen::generatePolygons(size_t count)
 {
 	mPolygons.clear();
 	mPool.clear();
-	mDirPool.clear();
+	//mDirPool.clear();
 	return resizePolygons(count);
 }
 
 PolygonGen::PolyArray& PolygonGen::resizePolygons(size_t count)
 {
-	if (mPolygons.size() >= count)
-		mPolygons.resize(count); // TODO this will cause "memory leak"
+	mDirections.resize(count);
+
+	if (mPolygons.size() > count)
+	{
+		mPool.clearFromAdr(mPolygons[count].data());
+		//mDirPool.clearFromAdr(&mDirections[count]);
+		mPolygons.resize(count);
+	}
 	else
 	{
-		mDirections = { mDirPool.alloc<vec2>(count), count };
 		for (size_t i = mPolygons.size(); i < count; ++i)
 		{
 			mPolygons.emplace_back(generatePolygon());
@@ -61,14 +68,41 @@ PolygonGen::PolyArray& PolygonGen::resizePolygons(size_t count)
 	return mPolygons;
 }
 
-PolygonGen::PolyArray& PolygonGen::get()
+PolygonGen::PolyArray& PolygonGen::regenerateLastPolygons(size_t count)
+{
+	auto start = mPolygons.size() > count ? mPolygons.size() - count : 0;
+	
+	mDirections.resize(count);
+	mPolygons.resize(count);
+	mPool.clearFromAdr(mPolygons[count].data());
+
+	for (size_t i = 0; i < count; ++i)
+	{
+		mPolygons.emplace_back(generatePolygon());
+		mDirections[i + start] = { mDistDir(mGenerator), mDistDir(mGenerator) };
+	}
+
+	return mPolygons;
+}
+
+PolygonGen::PolyArray& PolygonGen::data()
 {
 	return mPolygons;
 }
 
-std::span<glm::vec2> PolygonGen::getDirections()
+std::vector<glm::vec2>& PolygonGen::getDirections()
 {
 	return mDirections;
+}
+
+std::span<glm::vec2> PolygonGen::operator[](size_t i) const
+{
+	return mPolygons[i];
+}
+
+size_t PolygonGen::size() const
+{
+	return mPolygons.size();
 }
 
 std::span<glm::vec2> PolygonGen::generatePolygon()

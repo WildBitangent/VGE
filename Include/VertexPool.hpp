@@ -23,6 +23,12 @@ public:
 	};
 
 	void clear();
+	template<typename T>
+	void clearFromAdr(T* ptr)
+	{
+		// TODO unsafe - possible missalignment
+		mCurrentOffset = static_cast<size_t>(reinterpret_cast<float*>(ptr) - mPool);
+	}
 
 private:
 	float* mPool;
