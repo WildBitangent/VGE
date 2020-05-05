@@ -22,6 +22,7 @@ int main()
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 	sf::RenderWindow window(sf::VideoMode(WINSIZE.x, WINSIZE.y), "VGE proj", 7, settings);
+	window.setVerticalSyncEnabled(true);
 	
 	size_t selectedlevel = 0;
 	std::vector<std::unique_ptr<Level>> levels;
@@ -46,7 +47,6 @@ int main()
 
 	Text overlayText(baseText + level0Text);
 	overlayText.mText.setCharacterSize(15);
-	//overlayText.mText.setFillColor(sf::Color::Green);
 	overlayText.mText.setPosition(10, 10);
 	
 	auto timeStart = clock::now();
@@ -76,8 +76,6 @@ int main()
 		timeStart = currentTime;
 
 		auto delta = std::chrono::duration<float, std::milli>(deltaTime).count();
-		//if (delta > 100.f / 144.f)
-		//	delta = 100.f / 144.f;
 
 		levels[selectedlevel]->update(delta);
 
