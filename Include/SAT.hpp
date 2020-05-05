@@ -17,7 +17,9 @@ protected:
 	struct MinMaxResult
 	{
 		float min;
+		size_t minIndex;
 		float max;
+		size_t maxIndex;
 	};
 
 	std::vector<glm::vec2> getNormals(const Hull& hull);
