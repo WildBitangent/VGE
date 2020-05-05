@@ -11,6 +11,7 @@ https://releases.llvm.org/download.html
 Dalej je potrebne stiahnut a rozbalit kniznice SFML a GLM:
 https://github.com/g-truc/glm/releases
 https://www.sfml-dev.org/download/sfml/2.5.1/
+GLM sluzi ako matematicka kniznica a SFML pre vytvorenie okna a vykreslovanie.
 
 Ked je vsetko prichystane je mozne zostavit projekt (testovane pre Visual Studio) naslednovne:
 1. spustit cmake-gui
