@@ -1,5 +1,5 @@
 Pri testovani sme zistili problem na Intel grafickej karte, ktory sposobuje ze aj po
-vycisteni framebuffer nevycisti. Na Nvidia karte sme tento problem nezaznamenali.
+vycisteni sa framebuffer nevycisti. Na Nvidia karte sme tento problem nezaznamenali.
 
 Pre zostavenie je potrebne mat nainstalovany CMake, ktory je mozne stiahnut z tohto linku:
 https://cmake.org/download/
