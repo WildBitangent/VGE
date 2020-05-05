@@ -14,11 +14,11 @@ https://www.sfml-dev.org/download/sfml/2.5.1/
 
 Ked je vsetko prichystane je mozne zostavit projekt (testovane pre Visual Studio) naslednovne:
 1. spustit cmake-gui
-2. Where is the source code: nastavit na adresar v ktorom sa nachadza subor CMakeLists.txt
+2. "Where is the source code:" nastavit na adresar v ktorom sa nachadza subor CMakeLists.txt
 3. vytvorit adresar build
-4. Where to build the binaries: nastavit na vytvoreny build adresar
+4. "Where to build the binaries:" nastavit na vytvoreny build adresar
 5. stlacit Configure (ak si pyta generator vybrat napr Visual Studio)
-6. nastavit SFML_DIR na cestu <rozbalene SFML>/lib/cmake/SFML
+6. nastavit SFML_DIR na cestu <rozbalene SFML>/SFML-<verzia>/lib/cmake/SFML
 7. ak glm_DIR nie je zobrazene stlacit este raz Configure
 8. nastavit glm_DIR na cestu <rozbalene GLM>/cmake/glm
 9. stlacit Generate
